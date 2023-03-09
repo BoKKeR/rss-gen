@@ -23,6 +23,7 @@ const Card = (props: CardProps) => {
 
   let imageSrc =
     props.item.content &&
+    // @ts-ignore
     regex.exec(props.item.content)[1].replaceAll("&amp;", "&");
 
   return (
