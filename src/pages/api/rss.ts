@@ -31,7 +31,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     content: string;
   }[];
   let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
-  xml += `<title>W3Schools Home Page</title>
+  xml += `<channel><title>W3Schools Home Page</title>
   <link>https://www.w3schools.com</link>
   <description>Free web building tutorials</description>`;
   results.forEach((item) => {
