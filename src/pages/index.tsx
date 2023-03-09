@@ -260,11 +260,3 @@ export default function Home() {
     </>
   );
 }
-
-/* export async function getServerSideProps() {
-  console.log(redisString);
-
-  //  const data = await redis.incr("counter");
-  // return { props: { data } };
-}
- */
