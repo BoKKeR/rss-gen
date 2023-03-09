@@ -42,6 +42,7 @@ export default function Home() {
         if (jsonFeed.channel.item.length) {
           setFeed(jsonFeed.channel?.item);
         } else {
+          // @ts-ignore
           setFeed([jsonFeed.channel?.item]);
         }
       } else {
@@ -135,18 +136,18 @@ export default function Home() {
     // when we update it
   }, [timeLeft, time, timerStatus]);
 
-  const onTabClick = (event) => {
+  const onTabClick = (event: any) => {
     event.preventDefault();
     setTab(event.target.id);
   };
 
-  const onTimeButtonClick = (event) => {
+  const onTimeButtonClick = (event: any) => {
     event.preventDefault();
     setTime(event.target.id);
     setTimeLeft(+event.target.id);
   };
 
-  const onSelectStartStop = (event) => {
+  const onSelectStartStop = (event: any) => {
     event?.preventDefault();
     setTimerStatus(event.target.id);
   };
@@ -158,8 +159,8 @@ export default function Home() {
     return str_pad_left(minutes, "0", 2) + ":" + str_pad_left(seconds, "0", 2);
   };
 
-  const onInputChange = (e) => {
-    setInput({ ...input, [e.target.id]: e.target.value });
+  const onInputChange = (event: any) => {
+    setInput({ ...input, [event.target.id]: event.target.value });
   };
 
   const manualAutomaticTable = () => {
@@ -250,6 +251,7 @@ export default function Home() {
           </aside>
           <div className="p-6 space-y-4">
             {feed?.map((item) => (
+              // @ts-ignore
               <Card key={item.id} item={item} />
             ))}
             <p>{JSON.stringify(feed)}</p>
