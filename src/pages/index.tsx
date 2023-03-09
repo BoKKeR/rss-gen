@@ -254,7 +254,6 @@ export default function Home() {
               // @ts-ignore
               <Card key={item.id} item={item} />
             ))}
-            <p>{JSON.stringify(feed)}</p>
           </div>
         </div>
       </main>
