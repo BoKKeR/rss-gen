@@ -45,6 +45,7 @@ const Card = (props: CardProps) => {
           </div>
           <div className="flex items-center">
             <div className="text-sm">
+              {/* @ts-ignore */}
               <p className="text-gray-900 leading-none">{props.item.author}</p>
               <p className="text-gray-600">{props.item.pubDate}</p>
             </div>
