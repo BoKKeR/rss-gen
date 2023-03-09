@@ -86,7 +86,7 @@ export default function Home() {
   ];
 
   const clearRSS = async () => {
-    const { data } = await axios.delete("/api/rss");
+    await axios.delete("/api/rss");
   };
 
   const sendRSS = async () => {
