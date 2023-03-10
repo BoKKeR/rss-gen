@@ -31,9 +31,13 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     link: string;
     content: string;
   }[];
-  const root = builder.create("rss", { version: "1.0", encoding: "UTF-8" });
-  var channel = root.ele("channel");
-  var item = channel.ele("item");
+  const root = builder.create("xml", { version: "1.0", encoding: "UTF-8" });
+  const rss = root.ele("rss", { version: "2.0" });
+  const channel = rss.ele("channel");
+  channel.ele("title", undefined, "RSS-GEN");
+  channel.ele("description", undefined, "test rss feed");
+  channel.ele("link", undefined, "https://rss.google.com");
+  const item = channel.ele("item");
   item.ele("content", { type: "html" });
   item.ele("title", undefined, "test");
   item.ele("description", undefined, "subtitle");
