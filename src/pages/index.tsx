@@ -38,9 +38,11 @@ export default function Home() {
       const { data } = await axios.get("/api/rss");
       let jsonFeed = parser.parse(data);
 
-      if (jsonFeed.channel?.item) {
-        if (jsonFeed.channel.item.length) {
-          setFeed(jsonFeed.channel?.item);
+      if (jsonFeed.rss.channel?.item) {
+        if (jsonFeed.rss.channel.item.length) {
+          console.log(jsonFeed.channel);
+
+          setFeed(jsonFeed.rss.channel?.item);
         } else {
           // @ts-ignore
           setFeed([jsonFeed.channel?.item]);
