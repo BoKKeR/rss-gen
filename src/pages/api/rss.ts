@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Redis from "ioredis";
 import redisString from "@/constants/redis";
-import builder from "xmlbuilder";
+import { create } from "xmlbuilder2";
 
 let redis = new Redis(redisString);
 
@@ -31,16 +31,33 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     link: string;
     content: string;
   }[];
-  const root = builder.create("rss", { version: "2.0" });
-  const channel = root.ele("channel");
-  channel.ele("title", undefined, "RSS-GEN");
-  channel.ele("description", undefined, "test rss feed");
-  channel.ele("link", undefined, "https://rss.google.com");
-  const item = channel.ele("item");
-  item.ele("content", { type: "html" });
-  item.ele("title", undefined, "test");
-  item.ele("description", undefined, "subtitle");
-  item.ele("link", undefined, "https://www.google.com");
+  /* eslint-disable */
+  const root = create({ version: "1.0" })
+    .ele("rss", { version: "2.0" })
+    .ele("channel")
+    .ele("title")
+    .txt("RSS-GEN")
+    .up()
+    .ele("description")
+    .txt("test rss feed")
+    .up()
+    .ele("link")
+    .txt("https://rss.google.com")
+    .up()
+    .ele("channel")
+    .ele("content")
+    .up()
+    .ele("item")
+    .ele("title")
+    .txt("test")
+    .up()
+    .ele("description")
+    .txt("subtitle")
+    .up()
+    .ele("link")
+    .txt("https://www.google.com")
+    .up();
+  /* eslint-enable */
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
 
@@ -71,7 +88,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
   xml += `</channel>`;
 
   res.setHeader("Content-Type", "application/xml");
-  res.status(200).send(root.end({ pretty: true }));
+  res.status(200).send(root.end({ prettyPrint: true }));
 };
 
 const clear = async (req: NextApiRequest, res: NextApiResponse) => {
