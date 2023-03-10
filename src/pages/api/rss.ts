@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import Redis from "ioredis";
 import redisString from "@/constants/redis";
+import builder from "xmlbuilder";
 
 let redis = new Redis(redisString);
 
@@ -30,6 +31,14 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     link: string;
     content: string;
   }[];
+  const root = builder.create("rss", { version: "1.0", encoding: "UTF-8" });
+  var channel = root.ele("channel");
+  var item = channel.ele("item");
+  item.ele("content", { type: "html" });
+  item.ele("title", undefined, "test");
+  item.ele("description", undefined, "subtitle");
+  item.ele("link", undefined, "https://www.google.com");
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
 
   xml += `<channel><description>RSS is a fascinating technology. The uses for RSS are expanding daily. Take a closer look at how various industries are using the benefits of RSS in their businesses.</description>
@@ -59,7 +68,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
   xml += `</channel>`;
 
   res.setHeader("Content-Type", "application/xml");
-  res.status(200).send(xml);
+  res.status(200).send(root.end({ pretty: true }));
 };
 
 const clear = async (req: NextApiRequest, res: NextApiResponse) => {
