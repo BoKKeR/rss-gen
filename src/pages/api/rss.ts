@@ -44,7 +44,6 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     .ele("link")
     .txt("https://rss.google.com")
     .up()
-    .ele("channel")
     .ele("content")
     .up()
     .ele("item")
@@ -55,8 +54,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     .txt("subtitle")
     .up()
     .ele("link")
-    .txt("https://www.google.com")
-    .up();
+    .txt("https://www.google.com");
   /* eslint-enable */
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
