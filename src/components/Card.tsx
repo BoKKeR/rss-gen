@@ -1,6 +1,3 @@
-import { getFeedData } from "@/network/axios";
-import decodeHTMLEntities from "@/utils/decodeHtml";
-import Image from "next/image";
 import { HTMLAttributes } from "react";
 import * as Parser from "rss-parser";
 
@@ -9,15 +6,6 @@ interface CardProps extends HTMLAttributes<HTMLElement> {
 }
 
 const Card = (props: CardProps) => {
-  // maybe cus its async? async parts need to use useEffect https://stackoverflow.com/questions/57847626/using-async-await-inside-a-react-functional-component
-
-  /*   let parser = new Parser();
-
-  let feedReq = await getFeedData("https://www.reddit.com/r/funny/new/.rss");
-
-  // @ts-ignore
-  let feed = await parser.parseString(feedReq); */
-
   let regex = /<img src="([^"]*)"/;
   console.log("content", props.item);
 
@@ -32,7 +20,7 @@ const Card = (props: CardProps) => {
         <div
           className="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-l-lg text-center overflow-hidden"
           style={{ backgroundImage: `url(${imageSrc})` }}
-          title="Woman holding a mug"
+          title={props.item.title}
         />
         <div className="border-r border-b border-l border-gray-400 lg:border-l-0 lg:border-t lg:border-gray-400 bg-white rounded-b lg:rounded-b-none lg:rounded-r p-4 flex flex-col justify-between leading-normal">
           <div className="mb-8">
