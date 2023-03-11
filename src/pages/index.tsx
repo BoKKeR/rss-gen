@@ -45,7 +45,7 @@ export default function Home() {
           setFeed(jsonFeed.rss.channel?.item);
         } else {
           // @ts-ignore
-          setFeed([jsonFeed.channel?.item]);
+          setFeed([jsonFeed.rss.channel?.item]);
         }
       } else {
         setFeed([]);
