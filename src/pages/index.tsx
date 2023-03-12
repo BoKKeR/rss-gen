@@ -91,6 +91,16 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    console.log(router.query);
+
+    if (router.query.user) {
+      // @ts-ignore
+      setUuid(router.query.user);
+      // @ts-ignore
+      Cookies.set("user", router.query.user);
+      return;
+    }
+
     const getUUID = async () => {
       const { data } = await backend.getUUID();
       Cookies.set("user", data);
