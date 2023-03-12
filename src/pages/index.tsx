@@ -259,7 +259,7 @@ export default function Home() {
             <p className="text-white font-bold">RSS endpoint:</p>
             <Input
               id="copy"
-              className="w-56"
+              className="w-72"
               value={`${constants.env.BASE_URL}/api/rss`}
               readOnly
             />
