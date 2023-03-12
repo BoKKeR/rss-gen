@@ -6,6 +6,7 @@ const Toggle: FunctionComponent<ToggleProps> = (props) => {
   return (
     <label className="relative inline-flex items-center cursor-pointer">
       <input
+        // @ts-ignore
         onClick={props.onClick}
         type="checkbox"
         value=""
