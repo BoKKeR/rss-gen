@@ -10,6 +10,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!req.query.user) {
+    return;
+  }
+
   switch (req.method) {
     case "GET":
       return await get(req, res);
@@ -24,7 +28,8 @@ export default async function handler(
 }
 
 const get = async (req: NextApiRequest, res: NextApiResponse) => {
-  const redisResult = await redis.lrange("list", 0, -1);
+  const redisResult = await redis.lrange(`list_${req.query.user}`, 0, -1);
+
   const results = redisResult.map((item) => JSON.parse(item)) as {
     title: string;
     subtitle: string;
@@ -65,7 +70,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 const clear = async (req: NextApiRequest, res: NextApiResponse) => {
-  redis.del("list");
+  redis.del(`list_${req.query.user}`);
   res.status(200).send("deleted");
 };
 
@@ -74,6 +79,6 @@ const add = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(422).send("no body");
   }
 
-  redis.lpush("list", JSON.stringify(req.body));
+  redis.lpush(`list_${req.query.user}`, JSON.stringify(req.body));
   return await get(req, res);
 };

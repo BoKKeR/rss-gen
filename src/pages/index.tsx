@@ -6,7 +6,6 @@ import LogoSvg from "@/components/LogoSvg";
 import Tab from "@/components/Tab";
 import Head from "next/head";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import str_pad_left from "@/utils/strPadLeft";
 import { LoremIpsum } from "lorem-ipsum";
@@ -15,6 +14,10 @@ import constants from "@/constants";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { ToastContainer, toast } from "react-toastify";
 import Toggle from "@/components/Toggle";
+import Cookies from "js-cookie";
+import backend from "@/network/backend";
+import CheckBox from "@/components/CheckBox";
+import { useRouter } from "next/router";
 
 export default function Home() {
   const notify = () => toast.success("Url Copied!");
@@ -39,7 +42,10 @@ export default function Home() {
   const [image, setImage] = useState(0);
   const [xml, setXml] = useState("");
   const [xmlToggle, setXmlToggle] = useState(false);
+  const [uuid, setUuid] = useState("");
+  const router = useRouter();
 
+  const copyUrl = `${constants.env.BASE_URL}/api/rss?user=${uuid}`;
   const prevFeed = usePrevious({ feed });
 
   const parseFeed = (feed: any) => {
@@ -47,6 +53,7 @@ export default function Home() {
     if (jsonFeed.rss.channel?.item) {
       if (jsonFeed.rss.channel.item.length) {
         setFeed(jsonFeed.rss.channel?.item);
+        setXml(feed);
       } else {
         setXml(feed);
         // @ts-ignore
@@ -60,7 +67,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetchRSS = async () => {
-      const { data } = await axios.get("/api/rss");
+      const { data } = await backend.getRss();
       parseFeed(data);
     };
 
@@ -70,9 +77,24 @@ export default function Home() {
     }
   }, []);
 
-  const [input, setInput] = useState({ title: "", subtitle: "" });
+  useEffect(() => {
+    const toggle = Cookies.get("toggle");
+    const isTrue = toggle === "true";
+    setXmlToggle(isTrue);
+  }, []);
+
+  const [input, setInput] = useState({
+    title: "",
+    subtitle: "",
+    link: "",
+    randomQuery: false
+  });
 
   const timeButtons = [
+    {
+      title: "5s",
+      id: "5"
+    },
     {
       title: "10s",
       id: "10"
@@ -84,10 +106,6 @@ export default function Home() {
     {
       title: "1m",
       id: "60"
-    },
-    {
-      title: "2m",
-      id: "120"
     }
   ];
 
@@ -103,8 +121,8 @@ export default function Home() {
   ];
 
   const clearRSS = async () => {
-    await axios.delete("/api/rss");
-    const { data } = await axios.get("/api/rss");
+    await backend.clearRss();
+    const { data } = await backend.getRss();
     parseFeed(data);
   };
 
@@ -117,23 +135,44 @@ export default function Home() {
 
     let title;
     let subtitle;
+    let link;
 
     if (tab === "manual") {
       title = input.title ? input.title : lorem.generateWords();
       subtitle = input.subtitle ? input.subtitle : lorem.generateSentences();
+      link = input.link ? input.link : "https://www.google.com/";
     } else {
       title = lorem.generateWords();
       subtitle = lorem.generateSentences();
+      link = "https://www.google.com/";
     }
     const content = {
       title: title,
       subtitle: subtitle,
-      link: "https://www.google.com/?" + Math.random() * 1000,
+      link: input.randomQuery ? link : link + "?r=" + Math.random() * 1000,
       content: image === 0 ? "/rss/red.png" : "/rss/green.png"
     };
-    const { data } = await axios.post("/api/rss", content);
+    const { data } = await backend.addRss(content);
     parseFeed(data);
   };
+
+  useEffect(() => {
+    const getUUID = async () => {
+      const { data } = await backend.getUUID();
+      Cookies.set("user", data);
+      router.push(`/?user=${data}`, undefined, { shallow: true });
+      setUuid(data);
+    };
+
+    const userCookie = Cookies.get("user");
+
+    if (!userCookie) {
+      getUUID();
+    } else {
+      setUuid(userCookie);
+      router.push(`/?user=${userCookie}`, undefined, { shallow: true });
+    }
+  }, []);
 
   useEffect(() => {
     // exit early when we reach 0
@@ -173,7 +212,9 @@ export default function Home() {
   };
 
   const toggleXML = () => {
-    setXmlToggle(!xmlToggle);
+    const value = xmlToggle;
+    setXmlToggle(!value);
+    Cookies.set("toggle", (!value).toString());
   };
 
   const timeLeftMinutes = () => {
@@ -184,30 +225,46 @@ export default function Home() {
   };
 
   const onInputChange = (event: any) => {
-    setInput({ ...input, [event.target.id]: event.target.value });
+    if (event?.target?.type === "checkbox") {
+      setInput({ ...input, [event.target.id]: !event.target.checked });
+    } else {
+      setInput({ ...input, [event.target.id]: event.target.value });
+    }
   };
 
   const manualAutomaticTable = () => {
     return tab === "manual" ? (
       <div className="min-w-max space-y-4">
-        <div>
-          <Input
-            className="min-w-full"
-            id="title"
-            value={input.title}
-            name="Title"
-            onChange={onInputChange}
-          />
-        </div>
-        <div>
-          <Input
-            className="min-w-full"
-            id="subtitle"
-            value={input.subtitle}
-            name="Subtitle"
-            onChange={onInputChange}
-          />
-        </div>
+        <Input
+          className="min-w-full"
+          id="title"
+          value={input.title}
+          name="Title"
+          onChange={onInputChange}
+        />
+        <Input
+          className="min-w-full"
+          id="subtitle"
+          value={input.subtitle}
+          name="Subtitle"
+          onChange={onInputChange}
+        />
+        <Input
+          className="min-w-full"
+          id="link"
+          value={input.link}
+          name="Link"
+          onChange={onInputChange}
+        />
+        <CheckBox
+          defaultChecked
+          onChange={onInputChange}
+          title="test"
+          id="randomQuery"
+        >
+          append random query string
+        </CheckBox>
+
         <div>
           <Button id="add" onClick={sendRSS}>
             Add
@@ -241,7 +298,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>RSS-Gen</title>
+        <title>RSS-Generator</title>
         <meta name="description" content="RSS-Gen" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
@@ -251,20 +308,15 @@ export default function Home() {
           <div className="flex items-center flex-shrink-0 text-white mr-6">
             <LogoSvg />
             <span className="font-semibold text-xl tracking-tight">
-              RSS-Gen
+              RSS-Generator
             </span>
           </div>
           {/* header buttons */}
           <div className="justify-between flex items-center space-x-2 ">
             <p className="text-white font-bold">RSS endpoint:</p>
-            <Input
-              id="copy"
-              className="w-72"
-              value={`${constants.env.BASE_URL}/api/rss`}
-              readOnly
-            />
+            <Input id="copy" className="w-72" value={copyUrl} readOnly />
 
-            <CopyToClipboard text={`${constants.env.BASE_URL}/api/rss`}>
+            <CopyToClipboard text={copyUrl}>
               <Button id="copy" onClick={notify}>
                 Copy
               </Button>
@@ -293,15 +345,19 @@ export default function Home() {
           </aside>
           <div className="flex flex-grow">
             <div className="absolute right-0 flex-grow flex-end p-2 rounded m-2 bg-blue-400">
-              <Toggle onClick={toggleXML}>Show XML</Toggle>
+              <Toggle checked={xmlToggle} onClick={toggleXML}>
+                Show XML
+              </Toggle>
             </div>
             <div className="flex-grow space-y-4 p-4">
-              {!xmlToggle
-                ? feed?.map((item) => (
-                    // @ts-ignore
-                    <Card key={item.id} item={item} />
-                  ))
-                : xml}
+              {!xmlToggle ? (
+                feed?.map((item) => (
+                  // @ts-ignore
+                  <Card key={item.id} item={item} />
+                ))
+              ) : (
+                <p>{xml}</p>
+              )}
             </div>
           </div>
           <ToastContainer

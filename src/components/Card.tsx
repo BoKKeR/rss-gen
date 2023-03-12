@@ -44,6 +44,7 @@ const Card = (props: CardProps) => {
                   {props.item.creator}
                 </p>
                 <p className="text-gray-600">{props.item.pubDate}</p>
+                <p>link: {props.item.link}</p>
               </div>
             </div>
           </a>
