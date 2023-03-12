@@ -1,10 +1,10 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import Redis from "ioredis";
-import redisString from "@/constants/redis";
 import { create } from "xmlbuilder2";
+import constants from "@/constants";
 
-let redis = new Redis(redisString);
+let redis = new Redis(constants.redisString);
 
 export default async function handler(
   req: NextApiRequest,
@@ -75,5 +75,5 @@ const add = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   redis.lpush("list", JSON.stringify(req.body));
-  res.status(200).send("nice");
+  return await get(req, res);
 };

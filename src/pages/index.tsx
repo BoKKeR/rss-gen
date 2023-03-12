@@ -4,15 +4,20 @@ import Card from "@/components/Card";
 import Input from "@/components/Input";
 import LogoSvg from "@/components/LogoSvg";
 import Tab from "@/components/Tab";
-import testdata from "@/utils/testdata";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import str_pad_left from "@/utils/strPadLeft";
 import { LoremIpsum } from "lorem-ipsum";
+import usePrevious from "@/utils/usePrevious";
+import constants from "@/constants";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { ToastContainer, toast } from "react-toastify";
+import Toggle from "@/components/Toggle";
 
 export default function Home() {
+  const notify = () => toast.success("Url Copied!");
   const parser = new XMLParser();
 
   const lorem = new LoremIpsum({
@@ -21,7 +26,7 @@ export default function Home() {
       min: 4
     },
     wordsPerSentence: {
-      max: 16,
+      max: 8,
       min: 4
     }
   });
@@ -32,28 +37,38 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(10);
   const [feed, setFeed] = useState([]);
   const [image, setImage] = useState(0);
+  const [xml, setXml] = useState();
+  const [xmlToggle, setXmlToggle] = useState(false);
+
+  const prevFeed = usePrevious({ feed });
+
+  const parseFeed = (feed: any) => {
+    let jsonFeed = parser.parse(feed);
+    if (jsonFeed.rss.channel?.item) {
+      if (jsonFeed.rss.channel.item.length) {
+        setFeed(jsonFeed.rss.channel?.item);
+      } else {
+        setXml(feed);
+        // @ts-ignore
+        setFeed([jsonFeed.rss.channel?.item]);
+      }
+    } else {
+      setXml("");
+      setFeed([]);
+    }
+  };
 
   useEffect(() => {
     const fetchRSS = async () => {
       const { data } = await axios.get("/api/rss");
-      let jsonFeed = parser.parse(data);
-
-      if (jsonFeed.rss.channel?.item) {
-        if (jsonFeed.rss.channel.item.length) {
-          console.log(jsonFeed.channel);
-
-          setFeed(jsonFeed.rss.channel?.item);
-        } else {
-          // @ts-ignore
-          setFeed([jsonFeed.rss.channel?.item]);
-        }
-      } else {
-        setFeed([]);
-      }
+      parseFeed(data);
     };
 
-    fetchRSS();
-  }, [parser]);
+    // @ts-ignore
+    if (prevFeed?.feed !== feed) {
+      fetchRSS();
+    }
+  }, []);
 
   const [input, setInput] = useState({ title: "", subtitle: "" });
 
@@ -89,6 +104,8 @@ export default function Home() {
 
   const clearRSS = async () => {
     await axios.delete("/api/rss");
+    const { data } = await axios.get("/api/rss");
+    parseFeed(data);
   };
 
   const sendRSS = async () => {
@@ -102,11 +119,11 @@ export default function Home() {
     let subtitle;
 
     if (tab === "manual") {
-      title = input.title;
-      subtitle = input.subtitle;
+      title = input.title ? input.title : lorem.generateWords();
+      subtitle = input.subtitle ? input.subtitle : lorem.generateSentences();
     } else {
-      title = lorem.generateWords(1);
-      subtitle = lorem.generateSentences(5);
+      title = lorem.generateWords();
+      subtitle = lorem.generateSentences();
     }
     const content = {
       title: title,
@@ -115,6 +132,7 @@ export default function Home() {
       content: image === 0 ? "/rss/red.png" : "/rss/green.png"
     };
     const { data } = await axios.post("/api/rss", content);
+    parseFeed(data);
   };
 
   useEffect(() => {
@@ -154,6 +172,10 @@ export default function Home() {
     setTimerStatus(event.target.id);
   };
 
+  const toggleXML = () => {
+    setXmlToggle(!xmlToggle);
+  };
+
   const timeLeftMinutes = () => {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft - minutes * 60;
@@ -167,9 +189,10 @@ export default function Home() {
 
   const manualAutomaticTable = () => {
     return tab === "manual" ? (
-      <div className="min-w-max">
+      <div className="min-w-max space-y-4">
         <div>
           <Input
+            className="min-w-full"
             id="title"
             value={input.title}
             name="Title"
@@ -178,18 +201,21 @@ export default function Home() {
         </div>
         <div>
           <Input
+            className="min-w-full"
             id="subtitle"
             value={input.subtitle}
             name="Subtitle"
             onChange={onInputChange}
           />
         </div>
-        <Button id="add" onClick={sendRSS}>
-          Add
-        </Button>
-        <Button id="clear" onClick={clearRSS}>
-          Clear
-        </Button>
+        <div>
+          <Button id="add" onClick={sendRSS}>
+            Add
+          </Button>
+          <Button id="clear" onClick={clearRSS}>
+            Clear
+          </Button>
+        </div>
       </div>
     ) : (
       <>
@@ -229,7 +255,21 @@ export default function Home() {
             </span>
           </div>
           {/* header buttons */}
-          <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto"></div>
+          <div className="justify-between flex items-center space-x-2 ">
+            <p className="text-white font-bold">RSS endpoint:</p>
+            <Input
+              id="copy"
+              className="w-56"
+              value={`${constants.env.BASE_URL}/api/rss`}
+              readOnly
+            />
+
+            <CopyToClipboard text={`${constants.env.BASE_URL}/api/rss`}>
+              <Button id="copy" onClick={notify}>
+                Copy
+              </Button>
+            </CopyToClipboard>
+          </div>
         </nav>
         <div className="flex">
           <aside className="top-18 left-0 z-40 flex-wrap bg-blue-100 p-4 min-h-screen w-96">
@@ -251,12 +291,29 @@ export default function Home() {
               {manualAutomaticTable()}
             </div>
           </aside>
-          <div className="p-6 space-y-4">
-            {feed?.map((item) => (
-              // @ts-ignore
-              <Card key={item.id} item={item} />
-            ))}
+          <div className="flex flex-grow">
+            <div className="absolute right-0 flex-grow flex-end p-2 rounded m-2 bg-blue-400">
+              <Toggle onClick={toggleXML}>Show XML</Toggle>
+            </div>
+            <div className="flex-grow space-y-4 p-4">
+              {!xmlToggle
+                ? feed?.map((item) => (
+                    // @ts-ignore
+                    <Card key={item.id} item={item} />
+                  ))
+                : xml}
+            </div>
           </div>
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            closeOnClick
+            closeButton
+            pauseOnHover={false}
+            pauseOnFocusLoss={false}
+            theme="light"
+          />
         </div>
       </main>
     </>
