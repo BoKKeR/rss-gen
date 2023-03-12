@@ -37,7 +37,7 @@ export default function Home() {
   const [timeLeft, setTimeLeft] = useState(10);
   const [feed, setFeed] = useState([]);
   const [image, setImage] = useState(0);
-  const [xml, setXml] = useState();
+  const [xml, setXml] = useState("");
   const [xmlToggle, setXmlToggle] = useState(false);
 
   const prevFeed = usePrevious({ feed });
