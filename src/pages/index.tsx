@@ -91,7 +91,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    console.log(router.query);
+    if (!router.isReady) return;
 
     if (router.query.user) {
       // @ts-ignore
@@ -116,7 +116,7 @@ export default function Home() {
       setUuid(userCookie);
       router.push(`/?user=${userCookie}`, undefined, { shallow: true });
     }
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     // exit early when we reach 0
