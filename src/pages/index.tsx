@@ -88,7 +88,7 @@ export default function Home() {
     const toggle = Cookies.get("toggle");
     const isTrue = toggle === "true";
     setXmlToggle(isTrue);
-  }, []);
+  }, [router.isReady]);
 
   useEffect(() => {
     if (!router.isReady) return;
