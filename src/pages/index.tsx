@@ -39,11 +39,18 @@ export default function Home() {
   const [timerStatus, setTimerStatus] = useState("stop");
   const [timeLeft, setTimeLeft] = useState(10);
   const [feed, setFeed] = useState([]);
-  const [image, setImage] = useState(0);
+  const [imageSelector, setImageSelector] = useState(0);
   const [xml, setXml] = useState("");
   const [xmlToggle, setXmlToggle] = useState(false);
   const [uuid, setUuid] = useState("");
   const router = useRouter();
+  const [input, setInput] = useState({
+    title: "",
+    subtitle: "",
+    link: "",
+    randomQuery: true,
+    randomImage: true
+  });
 
   const copyUrl = `${constants.env.BASE_URL}/api/rss?user=${uuid}`;
   const prevFeed = usePrevious({ feed });
@@ -82,79 +89,6 @@ export default function Home() {
     const isTrue = toggle === "true";
     setXmlToggle(isTrue);
   }, []);
-
-  const [input, setInput] = useState({
-    title: "",
-    subtitle: "",
-    link: "",
-    randomQuery: false
-  });
-
-  const timeButtons = [
-    {
-      title: "5s",
-      id: "5"
-    },
-    {
-      title: "10s",
-      id: "10"
-    },
-    {
-      title: "30s",
-      id: "30"
-    },
-    {
-      title: "1m",
-      id: "60"
-    }
-  ];
-
-  const startStopButtons = [
-    {
-      title: "Start",
-      id: "start"
-    },
-    {
-      title: "Stop",
-      id: "stop"
-    }
-  ];
-
-  const clearRSS = async () => {
-    await backend.clearRss();
-    const { data } = await backend.getRss();
-    parseFeed(data);
-  };
-
-  const sendRSS = async () => {
-    if (image === 0) {
-      setImage(1);
-    } else {
-      setImage(0);
-    }
-
-    let title;
-    let subtitle;
-    let link;
-
-    if (tab === "manual") {
-      title = input.title ? input.title : lorem.generateWords();
-      subtitle = input.subtitle ? input.subtitle : lorem.generateSentences();
-      link = input.link ? input.link : "https://www.google.com/";
-    } else {
-      title = lorem.generateWords();
-      subtitle = lorem.generateSentences();
-      link = "https://www.google.com/";
-    }
-    const content = {
-      title: title,
-      subtitle: subtitle,
-      link: input.randomQuery ? link : link + "?r=" + Math.random() * 1000,
-      content: image === 0 ? "/rss/red.png" : "/rss/green.png"
-    };
-    const { data } = await backend.addRss(content);
-    parseFeed(data);
-  };
 
   useEffect(() => {
     const getUUID = async () => {
@@ -195,6 +129,77 @@ export default function Home() {
     // when we update it
   }, [timeLeft, time, timerStatus]);
 
+  const timeButtons = [
+    {
+      title: "5s",
+      id: "5"
+    },
+    {
+      title: "10s",
+      id: "10"
+    },
+    {
+      title: "30s",
+      id: "30"
+    },
+    {
+      title: "1m",
+      id: "60"
+    }
+  ];
+
+  const startStopButtons = [
+    {
+      title: "Start",
+      id: "start"
+    },
+    {
+      title: "Stop",
+      id: "stop"
+    }
+  ];
+
+  const clearRSS = async () => {
+    await backend.clearRss();
+    const { data } = await backend.getRss();
+    parseFeed(data);
+  };
+
+  const sendRSS = async () => {
+    if (input.randomImage) {
+      if (imageSelector === 0) {
+        setImageSelector(1);
+      } else {
+        setImageSelector(0);
+      }
+    }
+    const imageUrl = imageSelector === 0 ? "/rss/red.png" : "/rss/green.png";
+
+    let title;
+    let subtitle;
+    let link;
+
+    if (tab === "manual") {
+      title = input.title ? input.title : lorem.generateWords();
+      subtitle = input.subtitle ? input.subtitle : lorem.generateSentences();
+      link = input.link ? input.link : "https://www.google.com/";
+    } else {
+      title = lorem.generateWords();
+      subtitle = lorem.generateSentences();
+      link = "https://www.google.com/";
+    }
+    const contentText = `<![CDATA[<p><img src="${imageUrl}"/></p>]]>`;
+    const item = {
+      id: title,
+      title: title,
+      subtitle: subtitle,
+      link: input.randomQuery ? link + "?r=" + Math.random() * 1000 : link,
+      content: contentText ? contentText : undefined
+    };
+    const { data } = await backend.addRss(item);
+    parseFeed(data);
+  };
+
   const onTabClick = (event: any) => {
     event.preventDefault();
     setTab(event.target.id);
@@ -226,7 +231,8 @@ export default function Home() {
 
   const onInputChange = (event: any) => {
     if (event?.target?.type === "checkbox") {
-      setInput({ ...input, [event.target.id]: !event.target.checked });
+      // @ts-ignore
+      setInput({ ...input, [event.target.id]: !input[event.target.id] });
     } else {
       setInput({ ...input, [event.target.id]: event.target.value });
     }
@@ -259,10 +265,18 @@ export default function Home() {
         <CheckBox
           defaultChecked
           onChange={onInputChange}
-          title="test"
+          title="randomQuery"
           id="randomQuery"
         >
           append random query string
+        </CheckBox>
+        <CheckBox
+          defaultChecked
+          onChange={onInputChange}
+          title="image"
+          id="image"
+        >
+          append random image
         </CheckBox>
 
         <div>
@@ -314,7 +328,7 @@ export default function Home() {
           {/* header buttons */}
           <div className="justify-between flex items-center space-x-2 ">
             <p className="text-white font-bold">RSS endpoint:</p>
-            <Input id="copy" className="w-72" value={copyUrl} readOnly />
+            <Input id="copy" className="w-96" value={copyUrl} readOnly />
 
             <CopyToClipboard text={copyUrl}>
               <Button id="copy" onClick={notify}>

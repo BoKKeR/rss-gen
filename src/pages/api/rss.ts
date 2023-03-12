@@ -35,6 +35,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     subtitle: string;
     link: string;
     content: string;
+    id: string;
   }[];
   const root = create({ version: "1.0" })
     .ele("rss", { version: "2.0" })
@@ -50,10 +51,12 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     .up();
 
   results.forEach((item) => {
-    const content = `<content type="html">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/funny/comments/11mz9b9/while_on_marthastewartcom_an_unfortunate/&quot;&gt; &lt;img src=&quot;${item.content}&quot; alt=&quot;While on MarthaStewart.com an unfortunate advertisement appeared in the beginning of the recipe.&quot; title=&quot;While on MarthaStewart.com an unfortunate advertisement appeared in the beginning of the recipe.&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/marcusnelson&quot;&gt; /u/marcusnelson &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://i.redd.it/p3kyqmvwpsma1.jpg&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/funny/comments/11mz9b9/while_on_marthastewartcom_an_unfortunate/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content>`;
     {
       root
         .ele("item")
+        .ele("id")
+        .txt(item.id)
+        .up()
         .ele("title")
         .txt(item.title)
         .up()
@@ -61,7 +64,12 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
         .txt(item.subtitle)
         .up()
         .ele("link")
-        .txt(item.link);
+        .txt(item.link)
+
+        .up();
+    }
+    if (item.content) {
+      root.ele("content:encoded").txt(item.content);
     }
   });
 
