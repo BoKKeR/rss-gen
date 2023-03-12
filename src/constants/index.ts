@@ -6,8 +6,8 @@ const env = {
   REDIS_ENV: process.env.REDIS_ENV,
   REDIS_USER: process.env.REDIS_USER ? process.env.REDIS_USER : "default",
   REDIS_MUTEX: process.env.REDIS_MUTEX,
-  BASE_URL: process.env.NEXT_PUBLIC_VERCEL_URL
-    ? process.env.NEXT_PUBLIC_VERCEL_URL
+  BASE_URL: process.env.NEXT_PUBLIC_BASE_URL
+    ? process.env.NEXT_PUBLIC_BASE_URL
     : "http://localhost:4000"
 };
 
