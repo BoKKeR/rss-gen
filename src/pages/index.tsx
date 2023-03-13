@@ -84,7 +84,7 @@ export default function Home() {
     if (prevFeed?.feed !== feed) {
       fetchRSS();
     }
-  }, [router.isReady]);
+  }, [router.isReady, Cookies.get("user")]);
 
   useEffect(() => {
     const toggle = Cookies.get("toggle");
