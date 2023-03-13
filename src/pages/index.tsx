@@ -73,8 +73,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!router.isReady) return;
-
     const fetchRSS = async () => {
       const { data } = await backend.getRss();
       parseFeed(data);
