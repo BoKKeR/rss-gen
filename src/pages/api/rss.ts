@@ -11,7 +11,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   if (!req.query.user) {
-    return;
+    res.status(400).send("user query param missing");
   }
 
   switch (req.method) {
@@ -37,6 +37,8 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     content: string;
     id: string;
   }[];
+  //  #pragma warning disable format
+
   const root = create({ version: "1.0" })
     .ele("rss", { version: "2.0" })
     .ele("channel")
@@ -49,6 +51,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
     .ele("link")
     .txt("https://rss.google.com")
     .up();
+  //#pragma warning restore format
 
   results.forEach((item) => {
     {
