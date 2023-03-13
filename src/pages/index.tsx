@@ -73,6 +73,8 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!router.isReady || !Cookies.get("user")) return;
+
     const fetchRSS = async () => {
       const { data } = await backend.getRss();
       parseFeed(data);
@@ -372,6 +374,9 @@ export default function Home() {
               <Toggle checked={xmlToggle} onClick={toggleXML}>
                 Show XML
               </Toggle>
+              <a href={"https://www.github.com/BoKKeR/rss-gen"}>
+                <img src="https://img.shields.io/github/stars/BoKKeR/rss-gen?style=social"></img>
+              </a>
             </div>
             <div className="flex-grow space-y-4 p-4">
               {!xmlToggle ? (
