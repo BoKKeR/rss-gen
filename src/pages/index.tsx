@@ -73,7 +73,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!router.isReady || !Cookies.get("user")) return;
+    if (!router.isReady) return;
 
     const fetchRSS = async () => {
       const { data } = await backend.getRss();
@@ -84,7 +84,7 @@ export default function Home() {
     if (prevFeed?.feed !== feed) {
       fetchRSS();
     }
-  }, [router.isReady, Cookies.get("user")]);
+  }, [router.isReady]);
 
   useEffect(() => {
     const toggle = Cookies.get("toggle");
