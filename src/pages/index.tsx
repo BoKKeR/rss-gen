@@ -26,12 +26,12 @@ export default function Home() {
   const lorem = new LoremIpsum({
     sentencesPerParagraph: {
       max: 8,
-      min: 4
+      min: 4,
     },
     wordsPerSentence: {
       max: 8,
-      min: 4
-    }
+      min: 4,
+    },
   });
 
   const [tab, setTab] = useState("manual");
@@ -49,7 +49,7 @@ export default function Home() {
     subtitle: "",
     link: "",
     randomQuery: true,
-    randomImage: true
+    randomImage: true,
   });
 
   const copyUrl = `${constants.env.BASE_URL}/api/rss?user=${uuid}`;
@@ -142,31 +142,31 @@ export default function Home() {
   const timeButtons = [
     {
       title: "5s",
-      id: "5"
+      id: "5",
     },
     {
       title: "10s",
-      id: "10"
+      id: "10",
     },
     {
       title: "30s",
-      id: "30"
+      id: "30",
     },
     {
       title: "1m",
-      id: "60"
-    }
+      id: "60",
+    },
   ];
 
   const startStopButtons = [
     {
       title: "Start",
-      id: "start"
+      id: "start",
     },
     {
       title: "Stop",
-      id: "stop"
-    }
+      id: "stop",
+    },
   ];
 
   const clearRSS = async () => {
@@ -204,7 +204,7 @@ export default function Home() {
       title: title,
       subtitle: subtitle,
       link: input.randomQuery ? link + "?r=" + Math.random() * 1000 : link,
-      content: contentText ? contentText : undefined
+      content: contentText ? contentText : undefined,
     };
     const { data } = await backend.addRss(item);
     parseFeed(data);
@@ -327,17 +327,17 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen bg-gray-50 text-gray-900 flex-row">
-        <nav className="flex items-center justify-between flex-wrap bg-blue-400 p-6">
-          <div className="flex items-center flex-shrink-0 text-white mr-6">
+      <main className="min-h-screen flex-row bg-gray-50 text-gray-900">
+        <nav className="flex flex-wrap items-center justify-between bg-blue-400 p-6">
+          <div className="mr-6 flex flex-shrink-0 items-center text-white">
             <LogoSvg />
-            <span className="font-semibold text-xl tracking-tight">
+            <span className="text-xl font-semibold tracking-tight">
               RSS-Generator
             </span>
           </div>
           {/* header buttons */}
-          <div className="justify-between flex items-center space-x-2 ">
-            <p className="text-white font-bold">RSS endpoint:</p>
+          <div className="flex items-center justify-between space-x-2 ">
+            <p className="font-bold text-white">RSS endpoint:</p>
             <Input id="copy" className="w-96" value={copyUrl} readOnly />
 
             <CopyToClipboard text={copyUrl}>
@@ -348,8 +348,8 @@ export default function Home() {
           </div>
         </nav>
         <div className="flex">
-          <aside className="top-18 left-0 z-40 flex-wrap bg-blue-100 p-4 min-h-screen w-96">
-            <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500">
+          <aside className="top-18 left-0 z-40 min-h-screen w-96 flex-wrap bg-blue-100 p-4">
+            <ul className="flex flex-wrap text-center text-sm font-medium text-gray-500">
               <Tab
                 id={"manual"}
                 onClick={onTabClick}
@@ -363,12 +363,12 @@ export default function Home() {
                 active={tab === "automatic"}
               />
             </ul>
-            <div className="p-6 bg-gray-50 space-y-4">
+            <div className="space-y-4 bg-gray-50 p-6">
               {manualAutomaticTable()}
             </div>
           </aside>
           <div className="flex flex-grow">
-            <div className="absolute right-0 flex-grow flex-end p-2 rounded m-2 bg-blue-400">
+            <div className="flex-end absolute right-0 m-2 flex-grow rounded bg-blue-400 p-2">
               <Toggle checked={xmlToggle} onClick={toggleXML}>
                 Show XML
               </Toggle>

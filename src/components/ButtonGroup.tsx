@@ -26,7 +26,7 @@ const ButtonGroup = (props: ButtonProps) => {
         id={button.id}
         onClick={props.onClick}
         type="button"
-        className={`px-4 py-2 text-sm font-medium text-gray-900 bg-white ${dynamicActive} ${dynamicMidClasses} ${dynamicFirstClasses} ${dynamicLastClasses} border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-70 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-blue-500 dark:focus:text-white`}
+        className={`bg-white px-4 py-2 text-sm font-medium text-gray-900 ${dynamicActive} ${dynamicMidClasses} ${dynamicFirstClasses} ${dynamicLastClasses} focus:text-blue-70 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:text-white dark:hover:bg-gray-600 dark:hover:text-white dark:focus:text-white dark:focus:ring-blue-500`}
       >
         {button.title}
       </button>

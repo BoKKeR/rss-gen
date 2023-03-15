@@ -7,13 +7,13 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 const Input = (props: InputProps) => {
   return (
     <div>
-      <label htmlFor={props.id} className="block mb-2 text-sm font-medium">
+      <label htmlFor={props.id} className="mb-2 block text-sm font-medium">
         {props.name}
       </label>
       <input
         {...props}
         type="text"
-        className={`bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500 ${props.className}`}
+        className={`block rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm focus:border-blue-500 focus:ring-blue-500 dark:focus:border-blue-500 dark:focus:ring-blue-500 ${props.className}`}
         placeholder={props.placeholder}
       />
     </div>

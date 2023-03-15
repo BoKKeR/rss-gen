@@ -8,7 +8,7 @@ const env = {
   REDIS_MUTEX: process.env.REDIS_MUTEX,
   BASE_URL: process.env.NEXT_PUBLIC_BASE_URL
     ? process.env.NEXT_PUBLIC_BASE_URL
-    : "http://localhost:4000"
+    : "http://localhost:4000",
 };
 
 const redisString = `redis://${env.REDIS_USER}:${env.REDIS_PASSWORD}@${env.REDIS_HOST}:${env.REDIS_PORT}`;

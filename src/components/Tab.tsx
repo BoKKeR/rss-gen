@@ -16,7 +16,7 @@ const Tab = (props: AllProps) => {
         <a
           onClick={props.onClick}
           aria-current="page"
-          className={`inline-block p-4 rounded-t-lg active ${activeProps}`}
+          className={`active inline-block rounded-t-lg p-4 ${activeProps}`}
           id={props.id}
         >
           {props.title}
